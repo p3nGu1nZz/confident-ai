@@ -106,3 +106,6 @@ dist
 # Electron
 out
 .webpack
+
+#VS Code
+*.code-workspace
