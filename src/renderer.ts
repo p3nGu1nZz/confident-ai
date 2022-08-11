@@ -302,9 +302,6 @@ scene.append(node38)
 scene.append(node39)
 scene.append(node40)
 
-// Load our Scene in the Viewport
-document.body.append(scene)
-
 // TODO refactor this into the game loop so we can do fun stuff with it
 node.rotation = (x: number, y: number, z: number) => [x, y + 1, z]
 node2.rotation = (x: number, y: number, z: number) => [x, y + 1, z]
@@ -355,6 +352,41 @@ var currentFps: number = 0
 var elapsedRealTime: number = 0
 var frameTicks: number = 0
 
+// Initlized the Default Keyboard States
+const KeyState: { [x: string]: boolean } = {
+  "w": false, "a": false, "s": false, "d": false,
+  "W": false, "A": false, "S": false, "D": false,
+  "q": false, "e": false, "Q": false, "E": false,
+  "i": false, "I": false, "m": false, "M": false,
+  "Shift": false, "Tab": false, " ": false, "Control": false,
+  "Enter": false, "Backspace": false, "Escape": false, "Alt": false,
+  "1": false, "2": false, "3": false, "4": false, "5": false,
+  "6": false, "7": false, "8": false, "9": false, "0": false
+}
+
+// TODO create functions to load and unload the listeners.
+
+// Keyboard Input
+document.addEventListener("keydown", e => {
+  if (KeyState[e.key] != undefined && KeyState[e.key] == false) {
+    e.preventDefault()
+    KeyState[e.key] = true
+    console.log(e.key + " : " + KeyState[e.key])
+  }
+})
+document.addEventListener("keyup", e => {
+  if (KeyState[e.key] != undefined && KeyState[e.key] == true) {
+    e.preventDefault()
+    KeyState[e.key] = false
+    console.log(e.key + " : " + KeyState[e.key])
+  }
+})
+
+// TODO Create scene manager w/ events 
+
+// Load our Scene in the Viewport
+document.body.append(scene)
+
 // TODO create a fixed update that runs at the baseFps
 
 // Main game loop, updates every frame
@@ -362,7 +394,7 @@ const Update = (deltaTime: number) => {
   elapsedRealTime += deltaTime
   frameTicks++
 
-  if (frameTicks >= gameLoop.fps) {
+  if (frameTicks >= game.fps) {
     fpsNode.textContent = ((totalFps / frameTicks) | 0) + ""
     frameTicks = 0
     totalFps = 0
@@ -372,13 +404,13 @@ const Update = (deltaTime: number) => {
   totalFps += currentFps
 }
 
-// Setup Game Loop to Update
-const gameLoop = createGameLoop(Update, baseFps)
-gameLoop.fps = targetFps
+// Setup Game Loop for Update
+const game = createGameLoop(Update, baseFps)
+game.fps = targetFps
 
 // Recursively call request animation frame to vsynch
 function rAF(dT: number) {
-  gameLoop.loop(dT)
+  game.loop(dT)
   requestAnimationFrame(rAF)
 }
 
