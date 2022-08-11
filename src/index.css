@@ -5,3 +5,17 @@ html {
   padding: 0;
   margin: 0
 }
+
+#l-fps-counter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0);
+  font-weight: bold;
+  font-size: 1em;
+  font-family: "Lucida Console";
+  border: 1px rgba(128, 128, 128, 0.5) solid;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1.3em;
+}
