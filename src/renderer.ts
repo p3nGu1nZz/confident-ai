@@ -9,6 +9,10 @@ const { Scene, Node } = LUME
 const scene = new Scene()
 const sceneA = new SceneA()
 
+// Get Screen Size
+let windowWidth = window.innerWidth;
+let windowHeight = window.innerHeight;
+
 /// FPS Counter
 const fpsNode = new Node().set({
   id: "l-fps-counter",
@@ -25,13 +29,13 @@ sceneA.setup(scene)
 // FPS Counter
 const baseFps: number = 60
 const targetFps: number = 144
-var totalFps: number = 0
-var currentFps: number = 0
-var elapsedRealTime: number = 0
-var frameTicks: number = 0
+let totalFps: number = 0
+let currentFps: number = 0
+let elapsedRealTime: number = 0
+let frameTicks: number = 0
 
 // Initlized the Default Keyboard States
-const KeyState: { [x: string]: boolean } = {
+const KeyBuffer: { [x: string]: boolean } = {
   "w": false, "a": false, "s": false, "d": false,
   "W": false, "A": false, "S": false, "D": false,
   "q": false, "e": false, "Q": false, "E": false,
@@ -42,22 +46,37 @@ const KeyState: { [x: string]: boolean } = {
   "6": false, "7": false, "8": false, "9": false, "0": false
 }
 
+const MouseBuffer = {
+  clientX: 0,
+  clientY: 0,
+  clientXLast: 0,
+  clientYLast: 0
+}
+
+const MouseState = {
+  deltaX: 0,
+  deltaY: 0
+}
+
 // TODO create functions to load and unload the listeners.
 
 // Keyboard Input
 document.addEventListener("keydown", e => {
-  if (KeyState[e.key] != undefined && KeyState[e.key] == false) {
+  if (KeyBuffer[e.key] != undefined && KeyBuffer[e.key] == false) {
     e.preventDefault()
-    KeyState[e.key] = true
-    console.log(e.key + " : " + KeyState[e.key])
+    KeyBuffer[e.key] = true
   }
 })
 document.addEventListener("keyup", e => {
-  if (KeyState[e.key] != undefined && KeyState[e.key] == true) {
+  if (KeyBuffer[e.key] != undefined && KeyBuffer[e.key] == true) {
     e.preventDefault()
-    KeyState[e.key] = false
-    console.log(e.key + " : " + KeyState[e.key])
+    KeyBuffer[e.key] = false
   }
+})
+
+window.addEventListener('mousemove', (e: MouseEvent) => {
+  MouseBuffer.clientX = e.clientX
+  MouseBuffer.clientY = e.clientY
 })
 
 // TODO Create scene manager w/ events 
@@ -72,14 +91,8 @@ const Update = (deltaTime: number) => {
   elapsedRealTime += deltaTime
   frameTicks++
 
-  if (frameTicks >= game.fps) {
-    fpsNode.textContent = ((totalFps / frameTicks) | 0) + ""
-    frameTicks = 0
-    totalFps = 0
-  }
-
-  currentFps = (1000 / (deltaTime * 1000))
-  totalFps += currentFps
+  calculateFpsCounter(deltaTime)
+  calculateMousePosition()
 }
 
 // Setup Game Loop for Update
@@ -95,26 +108,24 @@ function rAF(dT: number) {
 // Start game loop
 requestAnimationFrame(rAF)
 
-// Input controls 
-// TODO move this into its own class
-function addInputListeners() {
-  document.addEventListener("keydown", e => {
-    if (KeyState[e.key] != undefined && KeyState[e.key] == false) {
-      e.preventDefault()
-      KeyState[e.key] = true
-      console.log(e.key + " : " + KeyState[e.key])
-    }
-  })
-  document.addEventListener("keyup", e => {
-    if (KeyState[e.key] != undefined && KeyState[e.key] == true) {
-      e.preventDefault()
-      KeyState[e.key] = false
-      console.log(e.key + " : " + KeyState[e.key])
-    }
-  })
+function calculateMousePosition() {
+  MouseState.deltaX = 0
+  MouseState.deltaY = 0
+
+  MouseState.deltaX = MouseBuffer.clientX - MouseBuffer.clientXLast
+  MouseState.deltaY = MouseBuffer.clientYLast - MouseBuffer.clientY
+
+  MouseBuffer.clientXLast = MouseBuffer.clientX
+  MouseBuffer.clientYLast = MouseBuffer.clientY
 }
 
-// TODO implement better listener handling
-function removeInputListeners() {
-  
+function calculateFpsCounter(deltaTime: number) {
+  if (frameTicks >= game.fps) {
+    fpsNode.textContent = ((totalFps / frameTicks) | 0) + ""
+    frameTicks = 0
+    totalFps = 0
+  }
+
+  currentFps = (1000 / (deltaTime * 1000))
+  totalFps += currentFps
 }
